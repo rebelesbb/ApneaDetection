@@ -14,8 +14,8 @@ class TestScreen extends StatefulWidget {
 class _TestScreenState extends State<TestScreen> {
   final HealthService _healthService = HealthService();
 
-  final startTime = DateTime(2026, 2, 28, 1, 17, 0, 0, 0);
-  final endTime = DateTime(2026, 3, 1, 8, 12, 0, 0, 0);
+  final startTime = DateTime(2026, 3, 7, 1, 17, 0, 0, 0);
+  final endTime = DateTime(2026, 3, 7, 8, 12, 0, 0, 0);
 
   void _testFetchData() async {
     bool hasPermission = await _healthService.requestPermissions();

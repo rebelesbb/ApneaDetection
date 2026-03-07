@@ -1,4 +1,4 @@
-import 'package:apnea_detector/utils/background_gradient.dart';
+import 'package:apnea_detector/components/background_gradient.dart';
 import 'package:apnea_detector/controllers/home_controller.dart';
 import 'package:apnea_detector/core/dependency_injector.dart';
 import 'package:apnea_detector/screens/analyze_sleep_screen.dart';

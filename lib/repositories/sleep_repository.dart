@@ -4,6 +4,7 @@ import 'package:apnea_detector/models/spo2_session_record.dart';
 import 'package:apnea_detector/services/api_services.dart';
 import 'package:apnea_detector/services/health_service.dart';
 import 'package:apnea_detector/services/local_storage.dart';
+import 'package:health/health.dart';
 
 class SleepRepository {
   final LocalStorageService localStorageService;
@@ -34,9 +35,14 @@ class SleepRepository {
       }
 
       final samples = points
-      .map((p) => (time: p.dateFrom, value: (p.value as num).toDouble()))
+      .map((p) => (time: p.dateFrom, value: (p.value as NumericHealthValue).numericValue.toDouble()))
       .toList()
       ..sort((a, b) => a.time.compareTo(b.time));
+
+      print('First 30 fetched samples:');
+      for (var sample in samples.take(30)) {
+        print('Value: ${sample.value}, Time: ${sample.time}');
+      }
 
       final resampled = resampleTo1Hz(samples, startTime, endTime);
       if(resampled.values.length < 60) {

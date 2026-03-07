@@ -1,4 +1,4 @@
-import 'package:apnea_detector/utils/background_gradient.dart';
+import 'package:apnea_detector/components/background_gradient.dart';
 import 'package:apnea_detector/controllers/home_controller.dart';
 import 'package:apnea_detector/utils/error_message.dart';
 import 'package:flutter/material.dart';

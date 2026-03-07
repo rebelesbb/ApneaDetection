@@ -7,7 +7,7 @@ class DI {
   static final DI I = DI._();
   DI._();
 
-  final baseUrl = "http://10.0.2.2:8080";
+  final baseUrl = "http://10.0.2.2:8000";
 
   late final ApiService apiService;
   late final HealthService healthService;
