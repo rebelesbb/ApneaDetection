@@ -12,71 +12,88 @@ class ResultsChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: 1.7,
-      child: Padding(
-        padding: const EdgeInsets.only(right: 16, left: 6, top: 10, bottom: 10),
-        child: LineChart(
-          LineChartData(
-            gridData: const FlGridData(show: false),
-            titlesData: FlTitlesData(
-              bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              leftTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 30,
-                  getTitlesWidget: (value, meta) {
-                    if(value % 5 == 0) {
-                      return Text(
-                        value.toInt().toString(),
-                        style: const TextStyle(fontSize:  10, color: Colors.white70)
-                        );
-                    }
-                    return SizedBox();
-                  },  
-                )
-              )
-            ),
-            borderData: FlBorderData(show: false),
-            minY: 70,
-            maxY: 100,
-            lineBarsData: [
-              LineChartBarData(
-                spots: record.values.asMap().entries.map((e) {
-                  return FlSpot(e.key.toDouble(), e.value);
-                }).toList(),
-                isCurved: true,
-                color: Colors.cyanAccent,
-                barWidth: 2,
-                isStrokeCapRound: true,
-                dotData: FlDotData(show: false),
-                belowBarData: BarAreaData(
-                  show: true,
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.cyanAccent.withAlpha(200),
-                      Colors.cyanAccent.withAlpha(0),
-                    ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const SizedBox(height: 32),
+        Text(
+          "Estimated AHI: ${record.ahi.toStringAsFixed(2)}",
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          record.ahi < 5 ? "Normal" : record.ahi < 15 ? "Mild" : record.ahi < 30 ? "Moderate" : "Severe",
+          style: Theme.of(context).textTheme.headlineSmall,
+        ),
+        const SizedBox(height: 32),
+        AspectRatio(
+          aspectRatio: 1.7,
+          child: Padding(
+            padding: const EdgeInsets.only(right: 16, left: 6, top: 10, bottom: 10),
+            child: LineChart(
+              LineChartData(
+                gridData: const FlGridData(show: false),
+                titlesData: FlTitlesData(
+                  bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 30,
+                      getTitlesWidget: (value, meta) {
+                        if(value % 5 == 0) {
+                          return Text(
+                            value.toInt().toString(),
+                            style: const TextStyle(fontSize:  10, color: Colors.white70)
+                            );
+                        }
+                        return SizedBox();
+                      },  
+                    )
                   )
+                ),
+                borderData: FlBorderData(show: false),
+                minY: 70,
+                maxY: 100,
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: record.values.asMap().entries.map((e) {
+                      return FlSpot(e.key.toDouble(), e.value);
+                    }).toList(),
+                    isCurved: true,
+                    color: Colors.greenAccent,
+                    barWidth: 2,
+                    isStrokeCapRound: true,
+                    dotData: FlDotData(show: false),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.greenAccent.withAlpha(200),
+                          Colors.greenAccent.withAlpha(0),
+                        ],
+                      )
+                    )
+                  )
+                ],
+                extraLinesData: ExtraLinesData(
+                  verticalLines: record.predictions.asMap().entries
+                  .where((e) => e.value == 1)
+                  .map((e) => VerticalLine(
+                    x: (e.key * 60).toDouble(),
+                    color: Colors.redAccent.shade700.withAlpha(100),
+                    strokeWidth: 4
+                  )).toList()
                 )
               )
-            ],
-            extraLinesData: ExtraLinesData(
-              verticalLines: record.predictions.asMap().entries
-              .where((e) => e.value == 1)
-              .map((e) => VerticalLine(
-                x: e.key.toDouble(),
-                color: Colors.redAccent.withAlpha(100),
-                strokeWidth: 4
-              )).toList()
             )
-          )
-        )
-      ),
+          ),
+        ),
+      ]
     );
   }
 }

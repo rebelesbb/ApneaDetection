@@ -17,7 +17,7 @@ class SleepRepository {
     required this.healthService,
   });
 
-  Spo2SessionRecord? getTodaySession() => null; //localStorageService.getTodaySession();
+  Spo2SessionRecord? getTodaySession() => localStorageService.getTodaySession();
 
   Future<Result<Spo2SessionRecord>> analyzeSleep({
     required DateTime startTime,

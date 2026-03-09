@@ -14,8 +14,8 @@ class TestScreen extends StatefulWidget {
 class _TestScreenState extends State<TestScreen> {
   final HealthService _healthService = HealthService();
 
-  final startTime = DateTime(2026, 3, 7, 1, 17, 0, 0, 0);
-  final endTime = DateTime(2026, 3, 7, 8, 12, 0, 0, 0);
+  final startTime = DateTime(2026, 3, 6, 21, 5, 46, 0, 0);
+  final endTime = DateTime(2026, 3, 7, 7, 11, 2, 0, 0);
 
   void _testFetchData() async {
     bool hasPermission = await _healthService.requestPermissions();
@@ -48,7 +48,7 @@ class _TestScreenState extends State<TestScreen> {
       return; 
     }
     try{
-      final rawData = await rootBundle.loadString('assets/test_spo2_osa15.csv');
+      final rawData = await rootBundle.loadString('assets/test_spo2_osa22.csv');
 
       List<List<dynamic>> csvTable = csv.decode(rawData);
       List<({DateTime time, double value})> samples = [];
@@ -68,7 +68,7 @@ class _TestScreenState extends State<TestScreen> {
         double secAndMs = double.parse(timeParts[2]);
         int second = secAndMs.floor();
 
-        DateTime targetDate = startTime;
+        DateTime targetDate = hour < startTime.hour ? endTime : startTime;
 
         DateTime fullDateTime = DateTime(
           targetDate.year,

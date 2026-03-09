@@ -25,4 +25,14 @@ class LocalStorageService {
   Future<void> deleteSession(String id) async {
     await _box.delete(id);
   }
+
+  Spo2SessionRecord? getTodaySession() {
+    final now = DateTime.now();
+    final todaySessions = getAllSessions().where((s) =>
+        s.startTime.year == now.year &&
+        s.startTime.month == now.month &&
+        (s.startTime.day == now.day || s.startTime.day == now.day - 1) &&
+        s.endTime.day == now.day);
+    return todaySessions.isNotEmpty ? todaySessions.first : null;
+  }
 }
