@@ -10,6 +10,31 @@ class ResultsChart extends StatelessWidget {
     required this.record,
   });
 
+  Widget _buildLegendItem(String label, Color color) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle, // Sau BoxShape.rectangle cu borderRadius
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white70,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -63,7 +88,7 @@ class ResultsChart extends StatelessWidget {
                       return FlSpot(e.key.toDouble(), e.value);
                     }).toList(),
                     isCurved: true,
-                    color: Colors.greenAccent,
+                    color: Colors.tealAccent.shade400,
                     barWidth: 2,
                     isStrokeCapRound: true,
                     dotData: FlDotData(show: false),
@@ -73,8 +98,8 @@ class ResultsChart extends StatelessWidget {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.greenAccent.withAlpha(200),
-                          Colors.greenAccent.withAlpha(0),
+                          Colors.tealAccent.shade400.withAlpha(200),
+                          Colors.tealAccent.shade400.withAlpha(0),
                         ],
                       )
                     )
@@ -85,7 +110,7 @@ class ResultsChart extends StatelessWidget {
                   .where((e) => e.value == 1)
                   .map((e) => VerticalLine(
                     x: (e.key * 60).toDouble(),
-                    color: Colors.redAccent.shade700.withAlpha(100),
+                    color: Colors.pink.shade900.withAlpha(100),
                     strokeWidth: 4
                   )).toList()
                 )
@@ -93,6 +118,18 @@ class ResultsChart extends StatelessWidget {
             )
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Wrap(
+            spacing: 20,
+            runSpacing: 10,
+            alignment: WrapAlignment.center,
+            children: [
+              _buildLegendItem("SpO2 Level", Colors.tealAccent.shade400),
+              _buildLegendItem("Apnea Event", Colors.pink.shade900.withAlpha(100)),
+            ],
+          ),
+        )
       ]
     );
   }

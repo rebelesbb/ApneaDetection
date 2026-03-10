@@ -1,3 +1,4 @@
+import 'package:apnea_detector/screens/history_screen.dart';
 import 'package:flutter/material.dart';
 import "package:apnea_detector/screens/home_screen.dart";
 
@@ -13,8 +14,8 @@ class _MainScreenState extends State<MainScreen> {
 
   final pages = [
     const HomeScreen(),
-    const Center(child: Text('History')),
-    const Center(child: Text('Analytics')),
+    const HistoryScreen(),
+    const Center(child: Text('Insights')),
     const Center(child: Text('Settings')),
   ];
 
@@ -41,7 +42,7 @@ class _MainScreenState extends State<MainScreen> {
           NavigationDestination(
             icon: Icon(Icons.analytics_outlined),
             selectedIcon: Icon(Icons.analytics),
-            label: "Analytics",
+            label: "Insights",
           ),
           NavigationDestination(
             icon: Icon(Icons.settings_outlined),

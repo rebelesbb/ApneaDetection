@@ -8,6 +8,8 @@ class Spo2SessionRecord {
   final List<int> timestamps;
   final double ahi;
   final List<int> predictions;
+  final bool hasSmoked;
+  final bool hasDrunkAlcohol;
 
   Spo2SessionRecord({
     required this.id,
@@ -17,6 +19,8 @@ class Spo2SessionRecord {
     required this.timestamps,
     required this.ahi,
     required this.predictions,
+    required this.hasSmoked,
+    required this.hasDrunkAlcohol,
   });
 
   Map<String, dynamic> toJson() => {
@@ -27,7 +31,23 @@ class Spo2SessionRecord {
         'timestamps': timestamps,
         'ahi': ahi,
         'predictions': predictions,
+        'hasSmoked': hasSmoked,
+        'hasDrunkAlcohol': hasDrunkAlcohol,
       };
+
+  Spo2SessionRecord copyWith({bool? hasSmoked, bool? hasDrunkAlcohol}) {
+    return Spo2SessionRecord(
+      id: id,
+      startTime: startTime,
+      endTime: endTime,
+      values: values,
+      timestamps: timestamps,
+      ahi: ahi,
+      predictions: predictions,
+      hasSmoked: hasSmoked ?? this.hasSmoked,
+      hasDrunkAlcohol: hasDrunkAlcohol ?? this.hasDrunkAlcohol
+    );
+  }
 
   factory Spo2SessionRecord.fromJson(Map<String, dynamic> json) {
     return Spo2SessionRecord(
@@ -38,6 +58,8 @@ class Spo2SessionRecord {
       timestamps: List<int>.from(json['timestamps']),
       ahi: json['ahi'],
       predictions: List<int>.from(json['predictions']),
+      hasSmoked: json['hasSmoked'] ?? false,
+      hasDrunkAlcohol: json['hasDrunkAlcohol'] ?? false,
     );
   }
 

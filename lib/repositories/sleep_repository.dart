@@ -18,6 +18,11 @@ class SleepRepository {
   });
 
   Spo2SessionRecord? getTodaySession() => localStorageService.getTodaySession();
+  List<Spo2SessionRecord> getAllSessions() => localStorageService.getAllSessions();
+
+  Future<void> updateSession(Spo2SessionRecord record) async {
+    await localStorageService.saveSession(record);
+  }
 
   Future<Result<Spo2SessionRecord>> analyzeSleep({
     required DateTime startTime,
@@ -63,7 +68,9 @@ class SleepRepository {
         timestamps: resampled.timestamps,
         values: resampled.values, 
         ahi: resp.ahi,
-        predictions: resp.predictions
+        predictions: resp.predictions,
+        hasSmoked: false,
+        hasDrunkAlcohol: false,
       );
 
       await localStorageService.saveSession(record);

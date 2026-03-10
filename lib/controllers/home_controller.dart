@@ -7,26 +7,30 @@ class HomeState {
   final bool isLoading;
   final String? errorMessage;
   final Spo2SessionRecord? todaySession;
+  final List<Spo2SessionRecord> allSessions;
 
   const HomeState({
     this.isLoading = false,
     this.errorMessage,
     this.todaySession,
+    this.allSessions = const [],
   });
 
   HomeState copyWith({
     bool? isLoading,
     String? errorMessage,
     Spo2SessionRecord? todaySession,
+    List<Spo2SessionRecord>? allSessions,
   }) {
     return HomeState(
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage,
       todaySession: todaySession ?? this.todaySession,
+      allSessions: allSessions ?? this.allSessions,
     );
   }
 
-  static const initial = HomeState(isLoading: false, errorMessage: null, todaySession: null);
+  static const initial = HomeState(isLoading: false, errorMessage: null, todaySession: null, allSessions: []);
 }
 
 class HomeController extends ChangeNotifier {
@@ -42,13 +46,22 @@ class HomeController extends ChangeNotifier {
 
     if(hasPermission) {
       final s = sleepRepository.getTodaySession();
-      state = state.copyWith(isLoading: false, errorMessage: null, todaySession: s);
+      final all = sleepRepository.getAllSessions();
+      state = state.copyWith(isLoading: false, errorMessage: null, todaySession: s, allSessions: all);
     }
     else {
       state = state.copyWith(isLoading: false, errorMessage: "Health permissions not granted", todaySession: null);
     }
 
     notifyListeners();
+  }
+
+  Future<void> updateRecord(Spo2SessionRecord record) async {
+    final index = state.allSessions.indexWhere((s) => s.id == record.id);
+    if(index != -1){
+      state.allSessions[index] = record;
+      notifyListeners();
+    }
   }
 
   Future<bool> runAnalyze(DateTime startTime, DateTime endTime) async {
