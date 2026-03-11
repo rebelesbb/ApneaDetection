@@ -1,6 +1,7 @@
 import 'package:apnea_detector/core/result.dart';
 import 'package:apnea_detector/models/spo2_session_record.dart';
 import 'package:apnea_detector/repositories/sleep_repository.dart';
+import 'package:apnea_detector/utils/sleep_analytics_calculator.dart';
 import 'package:flutter/material.dart';
 
 class HomeState {
@@ -39,6 +40,9 @@ class HomeController extends ChangeNotifier {
 
   HomeController({required this.sleepRepository});
 
+  DateTime _selectedWeekStart = _startOfWeek(DateTime.now());
+  DateTime get selectedWeekStart => _selectedWeekStart;
+
   void load() async{
     state = state.copyWith(isLoading: true, errorMessage: null);
 
@@ -60,6 +64,7 @@ class HomeController extends ChangeNotifier {
     final index = state.allSessions.indexWhere((s) => s.id == record.id);
     if(index != -1){
       state.allSessions[index] = record;
+      sleepRepository.updateSession(record);
       notifyListeners();
     }
   }
@@ -81,6 +86,28 @@ class HomeController extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  static DateTime _startOfWeek(DateTime date) {
+    return DateTime(date.year, date.month, date.day).subtract(Duration(days: date.weekday - 1));
+  }
+
+  List<Spo2SessionRecord> get sessionsForSelectedWeek {
+    final weekEnd = _selectedWeekStart.add(const Duration(days: 7));
+    return state.allSessions.where((s) {
+      return s.startTime.isAfter(_selectedWeekStart.subtract(const Duration(seconds: 1))) &&
+          s.startTime.isBefore(weekEnd);
+    }).toList();
+  }
+
+  void changeWeek(int weeks) {
+    _selectedWeekStart = _selectedWeekStart.add(Duration(days: weeks * 7));
+    notifyListeners();
+  }
+
+  double computeCorerelation(bool Function(Spo2SessionRecord) condition) {
+    final weekData = sessionsForSelectedWeek;
+    return SleepAnalyticsCalculator.calculateCorrelationScore(sessions: weekData, condition: condition);
   }
 }
 

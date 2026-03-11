@@ -25,7 +25,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   void initState() {
     super.initState();
-    controller = HomeController(sleepRepository: DI.I.sleepRepository)..load();
+    controller = DI.I.sleepController;
   }
 
   List<Spo2SessionRecord> _getEventsForDay(DateTime day) {
@@ -35,7 +35,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   void _showDetails(Spo2SessionRecord record) {
-    print(record.toJson().keys);
     Spo2SessionRecord currentRecord = record;
     showModalBottomSheet(
       context: context,
@@ -106,13 +105,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
         const BackgroundGradient(alignment: Alignment.topLeft),
         Scaffold(
           backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            title: const Text("History"),
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-          ),
           body: Column(
             children: [
+              const SizedBox(height: 50,),
               TableCalendar(
                 firstDay: DateTime.utc(2020, 1, 1),
                 lastDay: DateTime.utc(2030, 12, 31),
@@ -134,7 +129,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 
                 calendarStyle: CalendarStyle(
                   markerDecoration:  BoxDecoration(color: Colors.cyan.shade600, shape: BoxShape.circle),
-                  todayDecoration: BoxDecoration(color: Colors.cyan.shade600, shape: BoxShape.circle),
+                  todayDecoration: BoxDecoration(color: Colors.transparent, shape: BoxShape.circle, border: Border.all(color: Colors.cyanAccent, width: 2)),
                   selectedDecoration: BoxDecoration(color: Colors.cyan.shade600, shape: BoxShape.circle),
                   defaultTextStyle: const TextStyle(color: Colors.white),
                   weekendTextStyle: const TextStyle(color: Colors.white70),

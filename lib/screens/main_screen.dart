@@ -1,4 +1,7 @@
+import 'package:apnea_detector/controllers/home_controller.dart';
+import 'package:apnea_detector/core/dependency_injector.dart';
 import 'package:apnea_detector/screens/history_screen.dart';
+import 'package:apnea_detector/screens/insights_screen.dart';
 import 'package:flutter/material.dart';
 import "package:apnea_detector/screens/home_screen.dart";
 
@@ -11,11 +14,18 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int currentIndex = 0;
+  final HomeController controller = DI.I.sleepController;
+
+  @override
+  void initState() {
+    super.initState();
+    controller.load();
+  }
 
   final pages = [
     const HomeScreen(),
     const HistoryScreen(),
-    const Center(child: Text('Insights')),
+    const InsightsScreen(),
     const Center(child: Text('Settings')),
   ];
 

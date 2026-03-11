@@ -18,7 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    controller = HomeController(sleepRepository: DI.I.sleepRepository)..load();
+    controller = DI.I.sleepController;
   }
 
   @override
@@ -44,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       final result = await Navigator.push<bool>(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => AnalyzeSleepScreen(homeController: controller)
+                          builder: (_) => AnalyzeSleepScreen(controller: controller)
                           ),
                         );
                       

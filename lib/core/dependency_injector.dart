@@ -1,3 +1,4 @@
+import 'package:apnea_detector/controllers/home_controller.dart';
 import 'package:apnea_detector/repositories/sleep_repository.dart';
 import 'package:apnea_detector/services/api_services.dart';
 import 'package:apnea_detector/services/health_service.dart';
@@ -15,6 +16,8 @@ class DI {
 
   late final SleepRepository sleepRepository;
 
+  late final HomeController sleepController;
+
   Future<void> init() async {
     localStorageService = LocalStorageService();
     await localStorageService.init();
@@ -28,5 +31,7 @@ class DI {
       apiService: apiService,
       healthService: healthService,
      );
+
+    sleepController = HomeController(sleepRepository: sleepRepository);
   }
 }

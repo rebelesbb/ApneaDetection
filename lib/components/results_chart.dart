@@ -19,7 +19,7 @@ class ResultsChart extends StatelessWidget {
           height: 12,
           decoration: BoxDecoration(
             color: color,
-            shape: BoxShape.circle, // Sau BoxShape.rectangle cu borderRadius
+            shape: BoxShape.circle,
           ),
         ),
         const SizedBox(width: 6),

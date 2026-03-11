@@ -1,13 +1,14 @@
 import 'package:apnea_detector/components/background_gradient.dart';
+import 'package:apnea_detector/components/info_card.dart';
 import 'package:apnea_detector/controllers/home_controller.dart';
 import 'package:apnea_detector/utils/error_message.dart';
 import 'package:flutter/material.dart';
 
 class AnalyzeSleepScreen extends StatefulWidget {
-  final HomeController homeController;
+  final HomeController controller;
   const AnalyzeSleepScreen({
     super.key,
-    required this.homeController,
+    required this.controller,
   });
 
   @override
@@ -79,19 +80,26 @@ class _AnalyzeSleepScreenState extends State<AnalyzeSleepScreen> {
       return;
     }
 
-    final ok = await widget.homeController.runAnalyze(startDateTime, endDateTime);
+    final ok = await widget.controller.runAnalyze(startDateTime, endDateTime);
     if(!mounted) return;
 
     if(ok) {
       Navigator.pop(context, true);
     } else {
-      setState(() => _error = widget.homeController.state.errorMessage ?? "An error occurred");
+      setState(() => _error = widget.controller.state.errorMessage ?? "An error occurred");
       showErrorAlert(context, _error.toString());
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    const String infoCardMessage = '''
+    Always pick the date you actually went to bed. if you fell asleep before midnight and today if you fell asleep after.
+    ''';
+
+    const String infoTimeMessage = '''
+    Select your estimated bedtime and wake-up time. Set these to roughly 10 minutes before you fell asleep and 10 minutes after you woke up.
+    ''';
     return Stack(
       children: [
         const BackgroundGradient(alignment: Alignment.bottomRight),
@@ -102,10 +110,20 @@ class _AnalyzeSleepScreenState extends State<AnalyzeSleepScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  InfoCard(
+                    title: "What should you select for date?", 
+                    content: infoCardMessage, 
+                    icon: Icons.nights_stay_outlined,
+                    color: Colors.indigoAccent.shade100,),
                   ListTile(
                     title: Text(_startDate?.toString().split(' ').first ?? "Select start date"),
                     trailing: const Icon(Icons.date_range), onTap: _pickStartDate),
                   const SizedBox(height: 12),
+                  InfoCard(
+                    title: "What should you select for time?", 
+                    content: infoTimeMessage, 
+                    icon: Icons.alarm_rounded,
+                    color: Colors.indigoAccent.shade100,),
                   ListTile(
                     title: Text(_startTime?.format(context) ?? "Select start time"),
                     trailing: const Icon(Icons.access_time), onTap: _pickStartTime),
