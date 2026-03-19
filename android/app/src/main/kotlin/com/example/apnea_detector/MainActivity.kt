@@ -68,7 +68,6 @@ class MainActivity : FlutterFragmentActivity() {
 
             val instant = Instant.ofEpochMilli(timeMillis)
 
-            // IMPORTANT: value trebuie 0..100 (ex: 97.0)
             OxygenSaturationRecord(
                 time = instant,
                 zoneOffset = zoneOffset,

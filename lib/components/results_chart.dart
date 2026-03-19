@@ -88,7 +88,7 @@ class ResultsChart extends StatelessWidget {
                       return FlSpot(e.key.toDouble(), e.value);
                     }).toList(),
                     isCurved: true,
-                    color: Colors.tealAccent.shade400,
+                    color: Colors.tealAccent,
                     barWidth: 2,
                     isStrokeCapRound: true,
                     dotData: FlDotData(show: false),
@@ -98,8 +98,8 @@ class ResultsChart extends StatelessWidget {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.tealAccent.shade400.withAlpha(200),
-                          Colors.tealAccent.shade400.withAlpha(0),
+                          Colors.tealAccent.withAlpha(150),
+                          Colors.tealAccent.withAlpha(0),
                         ],
                       )
                     )
