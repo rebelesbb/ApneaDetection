@@ -46,16 +46,9 @@ class HomeController extends ChangeNotifier {
   void load() async{
     state = state.copyWith(isLoading: true, errorMessage: null);
 
-    final hasPermission = await sleepRepository.healthService.requestPermissions();
-
-    if(hasPermission) {
-      final s = sleepRepository.getTodaySession();
-      final all = sleepRepository.getAllSessions();
-      state = state.copyWith(isLoading: false, errorMessage: null, todaySession: s, allSessions: all);
-    }
-    else {
-      state = state.copyWith(isLoading: false, errorMessage: "Health permissions not granted", todaySession: null);
-    }
+    final s = sleepRepository.getTodaySession();
+    final all = sleepRepository.getAllSessions();
+    state = state.copyWith(isLoading: false, errorMessage: null, todaySession: s, allSessions: all);
 
     notifyListeners();
   }

@@ -2,6 +2,7 @@ import 'package:apnea_detector/controllers/home_controller.dart';
 import 'package:apnea_detector/core/dependency_injector.dart';
 import 'package:apnea_detector/screens/history_screen.dart';
 import 'package:apnea_detector/screens/insights_screen.dart';
+import 'package:apnea_detector/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 import "package:apnea_detector/screens/home_screen.dart";
 
@@ -20,20 +21,31 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     controller.load();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _requestHealthPermissionsAtStartup();
+    });
+  }
+
+  Future<void> _requestHealthPermissionsAtStartup() async {
+    await DI.I.healthService.requestPermissions();
   }
 
   final pages = [
     const HomeScreen(),
     const HistoryScreen(),
     const InsightsScreen(),
-    const Center(child: Text('Settings')),
+    const ProfileScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      body: pages[currentIndex],
+      body: IndexedStack(
+        index: currentIndex,
+        children: pages,
+      ),
       bottomNavigationBar: NavigationBar(
         backgroundColor: Color.fromARGB(255, 52, 36, 62),
         selectedIndex: currentIndex,
@@ -55,9 +67,9 @@ class _MainScreenState extends State<MainScreen> {
             label: "Insights",
           ),
           NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings),
-            label: "Settings",
+            icon: Icon(Icons.person_2_outlined),
+            selectedIcon: Icon(Icons.person_2),
+            label: "Profile",
           )
         ]
       )

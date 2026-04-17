@@ -3,7 +3,7 @@ import 'package:apnea_detector/models/spo2_predict_models.dart';
 import 'package:apnea_detector/models/spo2_session_record.dart';
 import 'package:apnea_detector/services/api_services.dart';
 import 'package:apnea_detector/services/health_service.dart';
-import 'package:apnea_detector/services/local_storage.dart';
+import 'package:apnea_detector/services/local/local_storage.dart';
 import 'package:health/health.dart';
 
 class SleepRepository {

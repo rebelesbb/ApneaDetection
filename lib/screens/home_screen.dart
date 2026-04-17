@@ -38,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
           backgroundColor: Colors.transparent,
           body:AnimatedBuilder(
             animation: controller,
-            builder: (_, __) {
+            builder: (_, _) {
               final state = controller.state;
 
               if(state.isLoading) {
@@ -229,10 +229,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Duration _extractSleepDuration(Spo2SessionRecord record) {
     final start = record.startTime;
-    print(  "Start: $start, End: ${record.endTime}");
     final end = record.endTime;
 
-    print("Raw duration: ${end.difference(start)}");
     return end.difference(start);
   }
 
@@ -255,15 +253,6 @@ class _HomeScreenState extends State<HomeScreen> {
     if (ahi < 15) return Colors.yellowAccent;
     if (ahi < 30) return Colors.orangeAccent;
     return Colors.redAccent;
-  }
-
-  String _formatDuration(Duration duration) {
-    final hours = duration.inHours;
-    final minutes = duration.inMinutes.remainder(60);
-
-    if (hours == 0) return "${minutes}m";
-    if (minutes == 0) return "${hours}h";
-    return "${hours}h ${minutes}m";
   }
 }
 
