@@ -125,7 +125,7 @@ class ResultsChart extends StatelessWidget {
             runSpacing: 10,
             alignment: WrapAlignment.center,
             children: [
-              _buildLegendItem("SpO2 Level", Colors.tealAccent.shade400),
+              _buildLegendItem("SpO2 Level", Colors.cyanAccent),
               _buildLegendItem("Apnea Event", Colors.pink.shade900.withAlpha(100)),
             ],
           ),

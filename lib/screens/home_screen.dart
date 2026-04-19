@@ -20,13 +20,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late final HomeController controller;
+  late final HomeController homeController;
   bool _showChart = false;
 
   @override
   void initState() {
     super.initState();
-    controller = DI.I.sleepController;
+    homeController = DI.I.sleepController;
+    homeController.loadTodaySession();
   }
 
   @override
@@ -37,9 +38,9 @@ class _HomeScreenState extends State<HomeScreen> {
         Scaffold(
           backgroundColor: Colors.transparent,
           body:AnimatedBuilder(
-            animation: controller,
+            animation: homeController,
             builder: (_, _) {
-              final state = controller.state;
+              final state = homeController.state;
 
               if(state.isLoading) {
                 return const Center(child: CircularProgressIndicator());
@@ -52,12 +53,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       final result = await Navigator.push<bool>(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => AnalyzeSleepScreen(controller: controller)
+                          builder: (_) => AnalyzeSleepScreen(controller: homeController)
                           ),
                         );
                       
                       if(result == true) {
-                        controller.load();
+                        homeController.loadTodaySession();
                       }
                     }, 
                     child: const Text("Analyze last night sleep"),

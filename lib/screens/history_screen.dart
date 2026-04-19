@@ -1,6 +1,6 @@
 import 'package:apnea_detector/components/background_gradient.dart';
 import 'package:apnea_detector/components/results_chart.dart';
-import 'package:apnea_detector/controllers/home_controller.dart';
+import 'package:apnea_detector/controllers/history_controller.dart';
 import 'package:apnea_detector/core/dependency_injector.dart';
 import 'package:apnea_detector/models/spo2_session_record.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +17,7 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  late final HomeController controller;
+  late final HistoryController historyController;
   final CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime? _focusedDate;
   DateTime? _selectedDate;
@@ -25,12 +25,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   void initState() {
     super.initState();
-    controller = DI.I.sleepController;
+    historyController = DI.I.historyController;
+    _focusedDate = DateTime.now();
+    historyController.loadMonth(_focusedDate!);
   }
 
   List<Spo2SessionRecord> _getEventsForDay(DateTime day) {
-    return controller.state.allSessions.where((record) {
-      return isSameDay(record.startTime, day);
+    return historyController.state.sessions.where((record) {
+      return isSameDay(record.endTime, day);
     }).toList();
   }
 
@@ -53,7 +55,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 children: [
                   Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2))),
                   const SizedBox(height: 20),
-                  Text("Analysis for ${currentRecord.startTime.day}/${currentRecord.startTime.month}/${currentRecord.startTime.year}", 
+                  Text("Analysis for ${currentRecord.endTime.day}/${currentRecord.endTime.month}/${currentRecord.endTime.year}", 
                       style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
                   ResultsChart(record: record), 
@@ -62,14 +64,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       children: [
                         Expanded(
                           child: CheckboxListTile(
-                            title: const Text("Havily Smoked That Day", style: TextStyle(color: Colors.white, fontSize: 14)),
+                            title: const Text("Heavily Smoked That Day", style: TextStyle(color: Colors.white, fontSize: 14)),
                             value: currentRecord.hasSmoked,
                             controlAffinity: ListTileControlAffinity.leading,
                             activeColor: Colors.cyanAccent,
                             onChanged: (bool? value) async {  
                               final updated = currentRecord.copyWith(hasSmoked: value);
                               setState(() => currentRecord = updated); 
-                              await controller.updateRecord(updated);
+                              await historyController.updateRecord(updated);
                             },
                           ),
                         ),
@@ -82,7 +84,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             onChanged: (bool? value) async {
                               final updated  = currentRecord.copyWith(hasDrunkAlcohol: value);
                               setState(() => currentRecord = updated);
-                              await controller.updateRecord(updated);
+                              await historyController.updateRecord(updated);
                             },
                           ),
                         ),

@@ -1,26 +1,37 @@
 import 'package:apnea_detector/components/background_gradient.dart';
 import 'package:apnea_detector/components/info_card.dart';
-import 'package:apnea_detector/controllers/home_controller.dart';
+import 'package:apnea_detector/controllers/insights_controller.dart';
 import 'package:apnea_detector/core/dependency_injector.dart';
 import 'package:apnea_detector/models/spo2_session_record.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:table_calendar/table_calendar.dart';
 
-class InsightsScreen extends StatelessWidget {
+class InsightsScreen extends StatefulWidget {
   const InsightsScreen({super.key});
 
   @override
+  State<InsightsScreen> createState() => _InsightsScreenState();
+}
+
+class _InsightsScreenState extends State<InsightsScreen> {
+  late final InsightsController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = DI.I.insightsController;
+    controller.loadWeek(DateTime.now());
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final controller = DI.I.sleepController;
-
     return AnimatedBuilder(
-      animation: controller, 
+      animation: controller,
       builder: (context, _) {
-        final weekSessions = controller.sessionsForSelectedWeek;
-
-        final smokeScore = controller.computeCorerelation((s) => s.hasSmoked);
-        final alcoholScore = controller.computeCorerelation((s) => s.hasDrunkAlcohol);
+        final state = controller.state;
+        final weekSessions = state.sessions;
 
         return Stack(
           children: [
@@ -31,69 +42,72 @@ class InsightsScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    const SizedBox(height: 50,),
+                    const SizedBox(height: 50),
                     _buildWeekSelector(controller),
                     const SizedBox(height: 24),
-
-                    _buildAHIChart(weekSessions, controller.selectedWeekStart),
+                    _buildAHIChart(weekSessions, state.selectedWeekStart),
                     const SizedBox(height: 32),
-
                     InfoCard(
                       title: "Nicotine Impact",
                       icon: Icons.smoke_free,
                       color: Colors.orangeAccent,
-                      content: "Nicotine is a stimulant that can interfere with sleep architecture and relax throat muscles, potentially increasing your AHI.",
+                      content:
+                          "Nicotine is a stimulant that can interfere with sleep architecture and relax throat muscles, potentially increasing your AHI.",
                     ),
                     _buildCorrelationStat(
                       label: "Smoking Correlation",
-                      score: smokeScore,
-                      days: weekSessions.where((s) => s.hasSmoked).length,
+                      score: state.smokingCorrelation,
+                      days: state.smokingDaysCount,
                     ),
-                    
                     const SizedBox(height: 20),
-
                     InfoCard(
                       title: "Alcohol & Sleep",
                       icon: Icons.local_bar,
                       color: Colors.redAccent,
-                      content: "Alcohol significantly relaxes airway muscles and disrupts REM cycles, leading to higher AHI scores and lower sleep quality.",
+                      content:
+                          "Alcohol significantly relaxes airway muscles and disrupts REM cycles, leading to higher AHI scores and lower sleep quality.",
                     ),
                     _buildCorrelationStat(
                       label: "Alcohol Correlation",
-                      score: alcoholScore,
-                      days: weekSessions.where((s) => s.hasDrunkAlcohol).length,
+                      score: state.alcoholCorrelation,
+                      days: state.alcoholDaysCount,
                     ),
-                    
                     const SizedBox(height: 40),
                   ],
                 ),
               ),
-            )
+            ),
           ],
         );
-      });
+      },
+    );
   }
 
-  Widget _buildWeekSelector(HomeController controller) {
-    final start = controller.selectedWeekStart;
+  Widget _buildWeekSelector(InsightsController controller) {
+    final start = controller.state.selectedWeekStart;
     final end = start.add(const Duration(days: 6));
-    final rangeText = "${DateFormat('d MMM'). format(start)} - ${DateFormat('d MMM').format(end)}";
+    final rangeText =
+        "${DateFormat('d MMM').format(start)} - ${DateFormat('d MMM').format(end)}";
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         IconButton(
-          onPressed: () => controller.changeWeek(-1), 
-          icon: const Icon(Icons.chevron_left, color: Colors.cyanAccent)
-          ),
+          onPressed: () => controller.changeWeek(-1),
+          icon: const Icon(Icons.chevron_left, color: Colors.cyanAccent),
+        ),
         Text(
           rangeText,
-          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         IconButton(
-          onPressed: () => controller.changeWeek(1), 
-          icon: const Icon(Icons.chevron_right, color: Colors.cyanAccent)
-          ),
+          onPressed: () => controller.changeWeek(1),
+          icon: const Icon(Icons.chevron_right, color: Colors.cyanAccent),
+        ),
       ],
     );
   }
@@ -108,13 +122,13 @@ class InsightsScreen extends StatelessWidget {
           barTouchData: BarTouchData(
             touchTooltipData: BarTouchTooltipData(
               getTooltipColor: (_) => Colors.blueGrey.shade800,
-              getTooltipItem:(group, groupIndex, rod, rodIndex) {
+              getTooltipItem: (group, groupIndex, rod, rodIndex) {
                 return BarTooltipItem(
                   "AHI: ${rod.toY.toStringAsFixed(1)}",
-                  const TextStyle(color: Colors.cyanAccent)
+                  const TextStyle(color: Colors.cyanAccent),
                 );
               },
-            )
+            ),
           ),
           titlesData: FlTitlesData(
             bottomTitles: AxisTitles(
@@ -124,28 +138,32 @@ class InsightsScreen extends StatelessWidget {
                   const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
                   return Padding(
                     padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(days[value.toInt()], style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                    child: Text(
+                      days[value.toInt()],
+                      style: const TextStyle(color: Colors.white54, fontSize: 12),
+                    ),
                   );
                 },
-              )
+              ),
             ),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
                 reservedSize: 30,
-                getTitlesWidget: (value, meta) => Text(value.toInt().toString()),
-              )
+                getTitlesWidget: (value, meta) =>
+                    Text(value.toInt().toString()),
+              ),
             ),
-            topTitles: const AxisTitles(sideTitles:  SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles:  SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
           gridData: const FlGridData(show: false),
           borderData: FlBorderData(show: false),
           barGroups: List.generate(7, (index) {
             final day = weekStart.add(Duration(days: index));
             final session = sessions.cast<Spo2SessionRecord?>().firstWhere(
-              (s) => s != null && s.startTime.day == day.day && s.endTime.day != day.day && s.startTime.month == day.month,
-              orElse: () => null
+              (s) => s != null && isSameDay(s.endTime, day),
+              orElse: () => null,
             );
 
             return BarChartGroupData(
@@ -154,20 +172,31 @@ class InsightsScreen extends StatelessWidget {
                 BarChartRodData(
                   toY: session?.ahi ?? 0,
                   color: session == null
-                    ? Colors.white10
-                    : (session.ahi < 5 ? Colors.cyanAccent : session.ahi < 15 ? Colors.amberAccent : session.ahi < 30 ? Colors.deepOrangeAccent : Colors.redAccent),
-                    width: 14,
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-                )
-              ]
+                      ? Colors.white10
+                      : (session.ahi < 5
+                          ? Colors.cyanAccent
+                          : session.ahi < 15
+                              ? Colors.amberAccent
+                              : session.ahi < 30
+                                  ? Colors.deepOrangeAccent
+                                  : Colors.redAccent),
+                  width: 14,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                ),
+              ],
             );
-          })
-        )
+          }),
+        ),
       ),
     );
   }
-  Widget _buildCorrelationStat({required String label, required double score, required int days}) {
-    final isNegative = score > 5; 
+
+  Widget _buildCorrelationStat({
+    required String label,
+    required double score,
+    required int days,
+  }) {
+    final isNegative = score > 5;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12),
       child: Row(
@@ -177,7 +206,10 @@ class InsightsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(label, style: const TextStyle(color: Colors.white, fontSize: 14)),
-              Text("$days days recorded", style: const TextStyle(color: Colors.white38, fontSize: 11)),
+              Text(
+                "$days days recorded",
+                style: const TextStyle(color: Colors.white38, fontSize: 11),
+              ),
             ],
           ),
           Text(

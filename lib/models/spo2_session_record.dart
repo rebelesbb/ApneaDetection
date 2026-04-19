@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 class Spo2SessionRecord {
-  final String id;
+  final int id;
   final DateTime startTime;
   final DateTime endTime;
   final List<double> values;
@@ -52,14 +52,14 @@ class Spo2SessionRecord {
   factory Spo2SessionRecord.fromJson(Map<String, dynamic> json) {
     return Spo2SessionRecord(
       id: json['id'],
-      startTime: DateTime.parse(json['startTime']),
-      endTime: DateTime.parse(json['endTime']),
+      startTime: DateTime.parse(json['start_time']),
+      endTime: DateTime.parse(json['end_time']),
       values: List<double>.from(json['values']),
       timestamps: List<int>.from(json['timestamps']),
       ahi: json['ahi'],
       predictions: List<int>.from(json['predictions']),
-      hasSmoked: json['hasSmoked'] ?? false,
-      hasDrunkAlcohol: json['hasDrunkAlcohol'] ?? false,
+      hasSmoked: json['has_smoked'] ?? false,
+      hasDrunkAlcohol: json['has_drunk_alcohol'] ?? false,
     );
   }
 

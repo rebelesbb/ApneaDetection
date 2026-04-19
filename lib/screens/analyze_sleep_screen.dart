@@ -102,7 +102,7 @@ class _AnalyzeSleepScreenState extends State<AnalyzeSleepScreen> {
     ''';
     return Stack(
       children: [
-        const BackgroundGradient(alignment: Alignment.bottomRight),
+        const BackgroundGradient(alignment: Alignment.bottomRight, useHero: true, heroTag: 'main_gradient'),
         Scaffold(
           backgroundColor: Colors.transparent,
             body: Padding(
