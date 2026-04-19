@@ -1,6 +1,5 @@
 import 'package:apnea_detector/core/dependency_injector.dart';
 import 'package:apnea_detector/screens/auth_gate.dart';
-import 'package:apnea_detector/screens/test_screen.dart';
 //import 'package:apnea_detector/screens/test_screen.dart';
 import 'package:flutter/material.dart';
 

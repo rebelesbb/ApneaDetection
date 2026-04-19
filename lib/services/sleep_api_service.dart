@@ -1,5 +1,6 @@
 import 'dart:convert';
-
+import 'dart:typed_data';
+import 'package:apnea_detector/models/report_models.dart';
 import 'package:apnea_detector/models/sleep_api_models.dart';
 import 'package:apnea_detector/models/spo2_session_record.dart';
 import 'package:http/http.dart' as http;
@@ -125,6 +126,25 @@ class SleepApiService {
 
     final json = jsonDecode(response.body) as Map<String, dynamic>;
     return WeeklyInsightsResponse.fromJson(json);
+  }
+
+  Future<Uint8List> generateSleepPdfReport({
+    required String accessToken,
+    required SleepReportRequest request,
+  }) async {
+    final uri = Uri.parse('$baseUrl/reports/sleep-pdf');
+
+    final response = await http.post(
+      uri,
+      headers: _headers(accessToken),
+      body: jsonEncode(request.toJson()),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(_extractErrorMessage(response));
+    }
+
+    return response.bodyBytes;
   }
 
   Map<String, String> _headers(String accessToken) => {

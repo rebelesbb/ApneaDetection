@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+import 'package:apnea_detector/models/report_models.dart';
 import 'package:apnea_detector/core/result.dart';
 import 'package:apnea_detector/models/sleep_api_models.dart';
 import 'package:apnea_detector/models/spo2_session_record.dart';
@@ -144,6 +146,32 @@ class SleepRepository {
       return Ok(insights);
     } catch (e) {
       return Err('Failed to fetch weekly insights: $e');
+    }
+  }
+
+  Future<Result<Uint8List>> generateSleepPdfReport({
+    required DateTime startDate,
+    required DateTime endDate,
+    required ChartMode chartMode,
+  }) async {
+    try {
+      final token = await authStorageService.getAccessToken();
+      if (token == null) {
+        return const Err('No access token found');
+      }
+
+      final bytes = await sleepApiService.generateSleepPdfReport(
+        accessToken: token,
+        request: SleepReportRequest(
+          startDate: startDate,
+          endDate: endDate,
+          chartMode: chartMode,
+        ),
+      );
+
+      return Ok(bytes);
+    } catch (e) {
+      return Err('Failed to generate PDF report: $e');
     }
   }
 

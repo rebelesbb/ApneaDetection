@@ -9,6 +9,7 @@ import 'package:apnea_detector/services/auth_api_service.dart';
 import 'package:apnea_detector/services/health_service.dart';
 import 'package:apnea_detector/services/local/auth_storage.dart';
 import 'package:apnea_detector/services/local/local_storage.dart';
+import 'package:apnea_detector/controllers/export_report_controller.dart';
 
 class DI {
   static final DI I = DI._();
@@ -29,6 +30,7 @@ class DI {
   late final AuthController authController;
   late final HistoryController historyController;
   late final InsightsController insightsController;
+  late final ExportReportController exportReportController;
 
   Future<void> init() async {
     localStorageService = LocalStorageService();
@@ -56,5 +58,6 @@ class DI {
     sleepController = HomeController(sleepRepository: sleepRepository);
     insightsController = InsightsController(sleepRepository: sleepRepository);
     historyController = HistoryController(sleepRepository: sleepRepository);
+    exportReportController = ExportReportController(sleepRepository: sleepRepository);
   }
 }

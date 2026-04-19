@@ -3,6 +3,7 @@ import 'package:apnea_detector/components/results_chart.dart';
 import 'package:apnea_detector/controllers/history_controller.dart';
 import 'package:apnea_detector/core/dependency_injector.dart';
 import 'package:apnea_detector/models/spo2_session_record.dart';
+import 'package:apnea_detector/screens/export_report_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -107,9 +108,27 @@ class _HistoryScreenState extends State<HistoryScreen> {
         const BackgroundGradient(alignment: Alignment.topLeft),
         Scaffold(
           backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            actions: [
+              TextButton.icon(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const ExportReportScreen(),
+                    )
+                  );
+                }, 
+                icon: Icon(Icons.picture_as_pdf_rounded, color: Colors.grey.shade50),
+                label: Text("Export data", style: TextStyle(color: Colors.grey.shade50),),
+                iconAlignment: IconAlignment.end,
+                
+              ),
+            ],
+          ),
           body: Column(
             children: [
-              const SizedBox(height: 50,),
+              const SizedBox(height: 10,),
               TableCalendar(
                 firstDay: DateTime.utc(2020, 1, 1),
                 lastDay: DateTime.utc(2030, 12, 31),
