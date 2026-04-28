@@ -175,28 +175,56 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 16),
 
                       Card(
-                        color: Colors.white.withAlpha(10),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Wrap(
-                            spacing: 10,
-                            runSpacing: 10,
-                            children: [
-                              _TemporaryToggleChip(
-                                label: "Smoked yesterday",
-                                icon: Icons.graphic_eq,
+                      color: Colors.white.withAlpha(10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                        child: Column(
+                          children: [
+                            CheckboxListTile(
+                              title: const Text(
+                                "Heavily smoked yesterday",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
                               ),
-                              _TemporaryToggleChip(
-                                label: "Drank alcohol yesterday",
-                                icon: Icons.sentiment_dissatisfied_outlined,
+                              value: record.hasSmoked,
+                              controlAffinity: ListTileControlAffinity.leading,
+                              activeColor: Colors.cyanAccent,
+                              checkColor: Colors.black,
+                              onChanged: (bool? value) async {
+                                if (value == null) return;
+
+                                final updated = record.copyWith(hasSmoked: value);
+                                await homeController.updateRecord(updated);
+                              },
+                            ),
+                            CheckboxListTile(
+                              title: const Text(
+                                "Drank alcohol yesterday",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
                               ),
-                            ],
-                          ),
+                              value: record.hasDrunkAlcohol,
+                              controlAffinity: ListTileControlAffinity.leading,
+                              activeColor: Colors.cyanAccent,
+                              checkColor: Colors.black,
+                              onChanged: (bool? value) async {
+                                if (value == null) return;
+
+                                final updated = record.copyWith(hasDrunkAlcohol: value);
+                                await homeController.updateRecord(updated);
+                              },
+                            ),
+                          ],
                         ),
                       ),
+                    ),
 
                       const SizedBox(height: 16),
 
@@ -254,47 +282,5 @@ class _HomeScreenState extends State<HomeScreen> {
     if (ahi < 15) return Colors.yellowAccent;
     if (ahi < 30) return Colors.orangeAccent;
     return Colors.redAccent;
-  }
-}
-
-class _TemporaryToggleChip extends StatefulWidget {
-  final String label;
-  final IconData icon;
-
-  const _TemporaryToggleChip({
-    required this.label,
-    required this.icon,
-  });
-
-  @override
-  State<_TemporaryToggleChip> createState() => _TemporaryToggleChipState();
-}
-
-class _TemporaryToggleChipState extends State<_TemporaryToggleChip> {
-  bool selected = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return FilterChip(
-      selected: selected,
-      onSelected: (value) {
-        setState(() {
-          selected = value;
-        });
-      },
-      label: Text(widget.label),
-      avatar: Icon(
-        widget.icon,
-        size: 18,
-        color: selected ? Colors.black : Colors.white70,
-      ),
-      labelStyle: TextStyle(
-        color: selected ? Colors.black : Colors.white,
-      ),
-      backgroundColor: Colors.white.withAlpha(12),
-      selectedColor: Colors.cyanAccent,
-      side: BorderSide(color: Colors.white.withAlpha(30)),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    );
   }
 }

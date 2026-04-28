@@ -88,7 +88,7 @@ class HomeController extends ChangeNotifier {
     }
   }
 
-  Future<void> updateTodayRecord(Spo2SessionRecord record) async {
+  Future<void> updateRecord(Spo2SessionRecord record) async {
     final result = await sleepRepository.updateSession(record);
 
     if (result is Ok<Spo2SessionRecord>) {
