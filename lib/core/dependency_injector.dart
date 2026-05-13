@@ -8,7 +8,6 @@ import 'package:apnea_detector/services/sleep_api_service.dart';
 import 'package:apnea_detector/services/auth_api_service.dart';
 import 'package:apnea_detector/services/health_service.dart';
 import 'package:apnea_detector/services/local/auth_storage.dart';
-import 'package:apnea_detector/services/local/local_storage.dart';
 import 'package:apnea_detector/controllers/export_report_controller.dart';
 
 class DI {
@@ -20,7 +19,6 @@ class DI {
   late final SleepApiService sleepApiService;
   late final AuthApiService authApiService;
   late final HealthService healthService;
-  late final LocalStorageService localStorageService;
   late final AuthStorageService authStorageService;
 
   late final SleepRepository sleepRepository;
@@ -33,9 +31,6 @@ class DI {
   late final ExportReportController exportReportController;
 
   Future<void> init() async {
-    localStorageService = LocalStorageService();
-    await localStorageService.init();
-
     authStorageService = AuthStorageService();
 
     healthService = HealthService();

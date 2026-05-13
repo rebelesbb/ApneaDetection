@@ -77,6 +77,11 @@ class _HomeScreenState extends State<HomeScreen> {
               final sleepEnd = record.endTime;
               final sleepDuration = _extractSleepDuration(record);
 
+              final user = DI.I.authController.state.currentUser;
+              final targetSleepDuration = user != null && user.sleepTarget != null
+                ? Duration(hours: user.sleepTarget!)
+                : const Duration(hours: 8);
+
               
               return SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
@@ -166,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Expanded(
                             child: SleepTargetCard(
                               sleepDuration: sleepDuration,
-                              targetDuration: const Duration(hours: 8),
+                              targetDuration: targetSleepDuration,
                             ),
                           ),
                         ],

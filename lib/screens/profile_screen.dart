@@ -11,7 +11,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  late final AuthController controller;
+  late final AuthController authController;
   bool _isEditing = false;
 
   late final TextEditingController _nameController;
@@ -23,9 +23,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    controller = DI.I.authController;
+    authController = DI.I.authController;
 
-    final user = controller.state.currentUser;
+    final user = authController.state.currentUser;
 
     _nameController = TextEditingController(text: user?.name ?? '');
     _heightController = TextEditingController(text: user?.height?.toString() ?? '');
@@ -56,7 +56,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _save() async {
-    final success = await controller.saveProfile(
+    final success = await authController.saveProfile(
       name: _nameController.text.trim().isEmpty ? null : _nameController.text.trim(),
       height: _parseDouble(_heightController.text),
       weight: _parseDouble(_weightController.text),
@@ -72,7 +72,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _loadFromState() {
-    final user = controller.state.currentUser;
+    final user = authController.state.currentUser;
     _nameController.text = user?.name ?? '';
     _heightController.text = user?.height?.toString() ?? '';
     _weightController.text = user?.weight?.toString() ?? '';
@@ -83,9 +83,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: controller,
+      animation: authController,
       builder: (context, _) {
-        final state = controller.state;
+        final state = authController.state;
         final user = state.currentUser;
 
         return Stack(
@@ -196,7 +196,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               const SizedBox(height: 12),
                               OutlinedButton.icon(
                                 onPressed: () async {
-                                  await controller.logout();
+                                  await authController.logout();
                                 },
                                 icon: const Icon(Icons.logout),
                                 label: const Text('Logout'),

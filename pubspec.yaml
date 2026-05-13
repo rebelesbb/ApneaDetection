@@ -102,3 +102,4 @@ flutter:
     - assets/test_spo2_osa15.csv
     - assets/test_spo2_osa22.csv
     - assets/test_spo2_osa11.csv
+    - assets/06_OSA_test.csv

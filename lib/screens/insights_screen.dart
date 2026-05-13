@@ -7,6 +7,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:apnea_detector/core/constants/insights_text.dart';
+import 'dart:math' as math;
 
 class InsightsScreen extends StatefulWidget {
   const InsightsScreen({super.key});
@@ -46,13 +48,14 @@ class _InsightsScreenState extends State<InsightsScreen> {
                     _buildWeekSelector(controller),
                     const SizedBox(height: 24),
                     _buildAHIChart(weekSessions, state.selectedWeekStart),
+                    const SizedBox(height: 24),
+                    _buildWeeklySeverityInfoCard(weekSessions),
                     const SizedBox(height: 32),
                     InfoCard(
-                      title: "Nicotine Impact",
+                      title: InsightsText.nicotineTitle,
                       icon: Icons.smoke_free,
                       color: Colors.orangeAccent,
-                      content:
-                          "Nicotine is a stimulant that can interfere with sleep architecture and relax throat muscles, potentially increasing your AHI.",
+                      content: InsightsText.nicotineInfo,
                     ),
                     _buildCorrelationStat(
                       label: "Smoking Correlation",
@@ -61,11 +64,10 @@ class _InsightsScreenState extends State<InsightsScreen> {
                     ),
                     const SizedBox(height: 20),
                     InfoCard(
-                      title: "Alcohol & Sleep",
+                      title: InsightsText.alcoholTitle,
                       icon: Icons.local_bar,
                       color: Colors.redAccent,
-                      content:
-                          "Alcohol significantly relaxes airway muscles and disrupts REM cycles, leading to higher AHI scores and lower sleep quality.",
+                      content: InsightsText.alcoholInfo,
                     ),
                     _buildCorrelationStat(
                       label: "Alcohol Correlation",
@@ -113,12 +115,18 @@ class _InsightsScreenState extends State<InsightsScreen> {
   }
 
   Widget _buildAHIChart(List<Spo2SessionRecord> sessions, DateTime weekStart) {
+    final maxAhi = sessions.isEmpty
+    ? 0.0
+    : sessions.map((s) => s.ahi).fold<double>(0.0, math.max);
+
+    final chartMaxY = math.max(35.0, ((maxAhi + 5) / 5).ceil() * 5.0);
+
     return AspectRatio(
-      aspectRatio: 1.7,
+      aspectRatio: 1.2,
       child: BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,
-          maxY: 30,
+          maxY: chartMaxY,
           barTouchData: BarTouchData(
             touchTooltipData: BarTouchTooltipData(
               getTooltipColor: (_) => Colors.blueGrey.shade800,
@@ -150,8 +158,18 @@ class _InsightsScreenState extends State<InsightsScreen> {
               sideTitles: SideTitles(
                 showTitles: true,
                 reservedSize: 30,
-                getTitlesWidget: (value, meta) =>
-                    Text(value.toInt().toString()),
+                interval: 5,
+                getTitlesWidget: (value, meta) {
+                  if (value % 5 != 0) return const SizedBox.shrink();
+
+                  return Text(
+                    value.toInt().toString(),
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 11,
+                    ),
+                  );
+                },
               ),
             ),
             topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -222,6 +240,84 @@ class _InsightsScreenState extends State<InsightsScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildWeeklySeverityInfoCard(List<Spo2SessionRecord> sessions) {
+    final recordedDays = sessions.length;
+
+    if (recordedDays == 0) {
+      return const InfoCard(
+        title: InsightsText.noDataTitle,
+        icon: Icons.info_outline,
+        color: Colors.cyanAccent,
+        content: InsightsText.noDataContent,
+      );
+    }
+
+    final severeDays = sessions.where((s) => s.ahi >= 30).length;
+    final moderateDays = sessions.where((s) => s.ahi >= 15 && s.ahi < 30).length;
+    final mildDays = sessions.where((s) => s.ahi >= 5 && s.ahi < 15).length;
+
+    if (severeDays >= 2) {
+      return InfoCard(
+        title: InsightsText.severeFrequentTitle(),
+        icon: Icons.warning_amber_rounded,
+        color: Colors.redAccent,
+        content: InsightsText.severeFrequentContent(severeDays),
+      );
+    }
+
+    if (severeDays == 1) {
+      return const InfoCard(
+        title: InsightsText.severeSingleTitle,
+        icon: Icons.warning_amber_rounded,
+        color: Colors.redAccent,
+        content: InsightsText.severeSingleContent,
+      );
+    }
+
+    if (moderateDays >= 3) {
+      return InfoCard(
+        title: InsightsText.moderateRepeatedTitle(),
+        icon: Icons.trending_up_rounded,
+        color: Colors.deepOrangeAccent,
+        content: InsightsText.moderateRepeatedContent(moderateDays),
+      );
+    }
+
+    if (moderateDays > 0) {
+      return InfoCard(
+        title: InsightsText.moderateDetectedTitle,
+        icon: Icons.info_outline_rounded,
+        color: Colors.orangeAccent,
+        content: InsightsText.moderateDetectedContent(moderateDays),
+      );
+    }
+
+    if (mildDays >= 3) {
+      return InfoCard(
+        title: InsightsText.mildPatternTitle,
+        icon: Icons.nightlight_round,
+        color: Colors.amberAccent,
+        content: InsightsText.mildPatternContent(mildDays),
+      );
+    }
+
+    if (mildDays > 0) {
+      return const InfoCard(
+        title: InsightsText.mildDetectedTitle,
+        icon: Icons.nightlight_round,
+        color: Colors.amberAccent,
+        content: InsightsText.mildDetectedContent,
+      );
+    }
+
+    return InfoCard(
+      title: InsightsText.normalWeekTitle,
+      icon: Icons.check_circle_outline_rounded,
+      color: Colors.greenAccent,
+      content: InsightsText.normalWeekContent(recordedDays),
     );
   }
 }

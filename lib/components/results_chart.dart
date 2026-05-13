@@ -35,8 +35,76 @@ class ResultsChart extends StatelessWidget {
     );
   }
 
+  List<LineChartBarData> _buildSpo2Bars() {
+    final bars = <LineChartBarData>[];
+    final current = <FlSpot>[];
+
+    void flushCurrent() {
+      if (current.length >= 2) {
+        bars.add(
+          LineChartBarData(
+            spots: List<FlSpot>.from(current),
+            isCurved: false,
+            color: Colors.cyanAccent,
+            barWidth: 2,
+            isStrokeCapRound: true,
+            dotData: const FlDotData(show: false),
+            belowBarData: BarAreaData(
+              show: true,
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.cyanAccent.withAlpha(120),
+                  Colors.cyanAccent.withAlpha(0),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+
+      current.clear();
+    }
+
+    for (int i = 0; i < record.spo2values.length; i++) {
+      final value = record.spo2values[i];
+
+      final isValid = value >= 60 && value <= 100;
+
+      if (!isValid) {
+        flushCurrent();
+        continue;
+      }
+
+      current.add(
+        FlSpot(
+          i.toDouble(),
+          value.clamp(70.0, 100.0).toDouble(),
+        ),
+      );
+    }
+
+    flushCurrent();
+
+    return bars;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final xMax = record.spo2values.isEmpty
+      ? 0.0
+      : (record.spo2values.length - 1).toDouble();
+
+  final durationSeconds = record.endTime
+      .difference(record.startTime)
+      .inSeconds
+      .abs();
+
+  final bottomInterval = durationSeconds > 6 * 3600
+      ? 7200.0 
+      : 3600.0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -59,8 +127,47 @@ class ResultsChart extends StatelessWidget {
             child: LineChart(
               LineChartData(
                 gridData: const FlGridData(show: false),
+                clipData: FlClipData.all(),
+                minX: 0,
+                maxX: xMax,
+                minY: 70,
+                maxY: 100,
                 titlesData: FlTitlesData(
-                  bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 30,
+                      interval: bottomInterval,
+                      getTitlesWidget: (value, meta) {
+                        if (value < 0 || value > xMax) {
+                          return const SizedBox.shrink();
+                        }
+
+                        final isAutoEndLabel = value > 0 && (xMax - value).abs() < 5;
+                        if (isAutoEndLabel) {
+                          return const SizedBox.shrink();
+                        }
+
+                        final time = record.startTime.add(
+                          Duration(seconds: value.round()),
+                        );
+
+                        final label =
+                            "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
+
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Text(
+                            label,
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: Colors.white70,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                   topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   leftTitles: AxisTitles(
@@ -80,38 +187,14 @@ class ResultsChart extends StatelessWidget {
                   )
                 ),
                 borderData: FlBorderData(show: false),
-                minY: 70,
-                maxY: 100,
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: record.values.asMap().entries.map((e) {
-                      return FlSpot(e.key.toDouble(), e.value);
-                    }).toList(),
-                    isCurved: true,
-                    color: Colors.cyanAccent,
-                    barWidth: 2,
-                    isStrokeCapRound: true,
-                    dotData: FlDotData(show: false),
-                    belowBarData: BarAreaData(
-                      show: true,
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.cyanAccent.withAlpha(150),
-                          Colors.cyanAccent.withAlpha(0),
-                        ],
-                      )
-                    )
-                  )
-                ],
+                lineBarsData: _buildSpo2Bars(),
                 extraLinesData: ExtraLinesData(
                   verticalLines: record.predictions.asMap().entries
                   .where((e) => e.value == 1)
                   .map((e) => VerticalLine(
-                    x: (e.key * 60).toDouble(),
+                    x: (e.key).toDouble(),
                     color: Colors.pink.shade900.withAlpha(100),
-                    strokeWidth: 4
+                    strokeWidth: 2
                   )).toList()
                 )
               )
@@ -126,7 +209,7 @@ class ResultsChart extends StatelessWidget {
             alignment: WrapAlignment.center,
             children: [
               _buildLegendItem("SpO2 Level", Colors.cyanAccent),
-              _buildLegendItem("Apnea Event", Colors.pink.shade900.withAlpha(100)),
+              _buildLegendItem("Detected Apnea Event", Colors.pink.shade900.withAlpha(100)),
             ],
           ),
         )

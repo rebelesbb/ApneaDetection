@@ -3,16 +3,18 @@ import 'package:apnea_detector/models/spo2_session_record.dart';
 class AnalyzeSpo2SessionRequest {
   final DateTime startTime;
   final DateTime endTime;
-  final List<double> values;
+  final List<double> spo2values;
   final List<int> timestamps;
+  final List<int> sleepStages;
   final bool hasSmoked;
   final bool hasDrunkAlcohol;
 
   const AnalyzeSpo2SessionRequest({
     required this.startTime,
     required this.endTime,
-    required this.values,
+    required this.spo2values,
     required this.timestamps,
+    required this.sleepStages,
     this.hasSmoked = false,
     this.hasDrunkAlcohol = false,
   });
@@ -20,8 +22,9 @@ class AnalyzeSpo2SessionRequest {
   Map<String, dynamic> toJson() => {
         'start_time': startTime.toIso8601String(),
         'end_time': endTime.toIso8601String(),
-        'values': values,
+        'spo2values': spo2values,
         'timestamps': timestamps,
+        'sleep_stages': sleepStages,
         'has_smoked': hasSmoked,
         'has_drunk_alcohol': hasDrunkAlcohol,
       };

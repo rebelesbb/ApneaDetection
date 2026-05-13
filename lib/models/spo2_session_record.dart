@@ -4,7 +4,7 @@ class Spo2SessionRecord {
   final int id;
   final DateTime startTime;
   final DateTime endTime;
-  final List<double> values;
+  final List<double> spo2values;
   final List<int> timestamps;
   final double ahi;
   final List<int> predictions;
@@ -15,7 +15,7 @@ class Spo2SessionRecord {
     required this.id,
     required this.startTime,
     required this.endTime,
-    required this.values,
+    required this.spo2values,
     required this.timestamps,
     required this.ahi,
     required this.predictions,
@@ -27,7 +27,7 @@ class Spo2SessionRecord {
         'id': id,
         'startTime': startTime.toIso8601String(),
         'endTime': endTime.toIso8601String(),
-        'values': values,
+        'spo2values': spo2values,
         'timestamps': timestamps,
         'ahi': ahi,
         'predictions': predictions,
@@ -40,7 +40,7 @@ class Spo2SessionRecord {
       id: id,
       startTime: startTime,
       endTime: endTime,
-      values: values,
+      spo2values: spo2values,
       timestamps: timestamps,
       ahi: ahi,
       predictions: predictions,
@@ -54,7 +54,7 @@ class Spo2SessionRecord {
       id: json['id'],
       startTime: DateTime.parse(json['start_time']),
       endTime: DateTime.parse(json['end_time']),
-      values: List<double>.from(json['values']),
+      spo2values: List<double>.from(json['spo2values']),
       timestamps: List<int>.from(json['timestamps']),
       ahi: json['ahi'],
       predictions: List<int>.from(json['predictions']),

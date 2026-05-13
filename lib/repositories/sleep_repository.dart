@@ -7,6 +7,7 @@ import 'package:apnea_detector/services/local/auth_storage.dart';
 import 'package:apnea_detector/services/health_service.dart';
 import 'package:apnea_detector/services/sleep_api_service.dart';
 import 'package:health/health.dart';
+import 'dart:math';
 
 class SleepRepository {
   final SleepApiService sleepApiService;
@@ -105,19 +106,33 @@ class SleepRepository {
           .toList()
         ..sort((a, b) => a.time.compareTo(b.time));
 
-      final resampled = resampleTo1Hz(samples, startTime, endTime);
-      if (resampled.values.length < 60) {
+      final data = prepareSpO2(samples);
+
+      if (data.values.length < 120) {
         return const Err(
-            "Not enough data points, at least 1 minute of data is required");
+          "Not enough data points, at least 2 minutes of data are required",
+        );
       }
+
+      final sleepPoints = await healthService.fetchSleep(
+        data.signalStart,
+        data.signalEnd,
+      );
+
+      final stages = buildSleepStageVectorFromAwakePoints(
+        sleepPoints: sleepPoints,
+        signalStart: data.signalStart,
+        length: data.values.length,
+      );
 
       final session = await sleepApiService.analyzeSession(
         accessToken: token,
         request: AnalyzeSpo2SessionRequest(
-          startTime: startTime,
-          endTime: endTime,
-          values: resampled.values,
-          timestamps: resampled.timestamps,
+          startTime: data.signalStart,
+          endTime: data.signalEnd,
+          spo2values: data.values,
+          timestamps: data.timestamps,
+          sleepStages: stages,
           hasSmoked: false,
           hasDrunkAlcohol: false,
         ),
@@ -175,30 +190,78 @@ class SleepRepository {
     }
   }
 
-  ({List<int> timestamps, List<double> values}) resampleTo1Hz(
-    List<({DateTime time, double value})> samples,
-    DateTime start,
-    DateTime end,
-  ) {
-    final totalSeconds = end.difference(start).inSeconds;
-    final outT = <int>[];
-    final outV = <double>[];
+({
+  DateTime signalStart,
+  DateTime signalEnd,
+  List<int> timestamps,
+  List<double> values,
+}) prepareSpO2(
+  List<({DateTime time, double value})> samples,
+) {
+  final sorted = [...samples]..sort((a, b) => a.time.compareTo(b.time));
 
-    int si = 0;
-    double last = samples.first.value;
+  final signalStart = DateTime(
+    sorted.first.time.year,
+    sorted.first.time.month,
+    sorted.first.time.day,
+    sorted.first.time.hour,
+    sorted.first.time.minute,
+    sorted.first.time.second,
+  );
 
-    for (int sec = 0; sec < totalSeconds; sec++) {
-      final t = start.add(Duration(seconds: sec));
+  final last = sorted.last.time;
+  final signalEnd = DateTime(
+    last.year,
+    last.month,
+    last.day,
+    last.hour,
+    last.minute,
+    last.second,
+  );
 
-      while (si < samples.length && !samples[si].time.isAfter(t)) {
-        last = samples[si].value;
-        si++;
+  final totalSeconds = signalEnd.difference(signalStart).inSeconds + 1;
+
+  final outT = List<int>.generate(totalSeconds, (i) => i);
+
+  final outV = List<double>.filled(totalSeconds, 0.0);
+
+  for (final sample in sorted) {
+    final idx = sample.time.difference(signalStart).inSeconds;
+
+    if (idx >= 0 && idx < totalSeconds) {
+      outV[idx] = sample.value;
+    }
+  }
+
+  return (
+    signalStart: signalStart,
+    signalEnd: signalEnd,
+    timestamps: outT,
+    values: outV,
+  );
+}
+
+  List<int> buildSleepStageVectorFromAwakePoints({
+    required List<HealthDataPoint> sleepPoints,
+    required DateTime signalStart,
+    required int length,
+  }) {
+    final stages = List<int>.filled(length, 1); // default asleep
+
+    for (final point in sleepPoints) {
+      if (point.type != HealthDataType.SLEEP_AWAKE) continue;
+
+      final startIndex = point.dateFrom.difference(signalStart).inSeconds;
+      final endIndex = point.dateTo.difference(signalStart).inSeconds;
+
+      final safeStart = max(0, startIndex);
+      final safeEnd = min(length, endIndex);
+
+      for (int i = safeStart; i < safeEnd; i++) {
+        stages[i] = 0;
       }
-
-      outT.add(sec);
-      outV.add(last);
     }
 
-    return (timestamps: outT, values: outV);
+    return stages;
   }
 }
